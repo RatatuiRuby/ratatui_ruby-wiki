@@ -19,6 +19,9 @@ Welcome to the **ratatui_ruby** wiki! This is the central hub for community reso
 ## Communication Archives
 *   [Announcements](./announcements/index.md)
 
+## History
+*   **[Project History](./history/index.md)**: Documentation of major migrations and project evolution.
+
 ## External Links
 *   [Source Code Repository](https://git.sr.ht/~kerrick/ratatui_ruby)
 *   [Documentation Index](https://git.sr.ht/~kerrick/ratatui_ruby/tree/main/item/docs/index.md)
