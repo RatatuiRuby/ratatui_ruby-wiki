@@ -20,6 +20,8 @@ ratatui_ruby aims to wrap all [Ratatui](https://ratatui.rs) features. Please req
 
 ## Pull Requests
 
+This project uses a trunk-based development workflow. Target your changes to the **`trunk`** branch. See [Branching and Releases](./branching_and_releases.md) for details.
+
 Please join the **devel** mailing list at https://lists.sr.ht/~kerrick/ratatui_ruby-devel. Then, send a pull request via email to the mailing list. 
 
 The easiest way to send a pull request via email is to use [git-send-email](https://git-scm.com/docs/git-send-email). If you are unfamiliar with using git to send a pull request via email, read the [four-step tutorial at git-send-email.io](https://git-send-email.io).

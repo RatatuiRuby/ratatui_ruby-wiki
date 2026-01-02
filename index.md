@@ -13,6 +13,7 @@ Welcome to the **ratatui_ruby** wiki! This is the central hub for community reso
 
 ## Development & Planning
 *   [Contributing Guide](./contributing.md)
+*   [Branching and Releases](./branching_and_releases.md)
 *   [Documentation Guide](./documentation_guide.md)
 *   [Roadmap](./roadmap.md): Future plans, upcoming features, and release goals.
 
