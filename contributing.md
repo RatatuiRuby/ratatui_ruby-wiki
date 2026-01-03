@@ -10,7 +10,7 @@ This project is intended to be a safe, productive collaboration, and contributor
 
 ## Reporting Issues
 
-Bug reports are welcome on [sourcehut](https://sourcehut.org) at https://todo.sr.ht/~kerrick/ratatui_ruby.
+Bug reports are welcome on [sourcehut](https://sourcehut.org) at https://todo.sr.ht/~kerrick/ratatui_ruby. We use a [semantic label system](./issue_tracking.md) to organize and prioritize work.
 
 Issues for Ratatui should be filed at [ratatui/ratatui](https://github.com/ratatui/ratatui).
 

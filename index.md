@@ -10,6 +10,7 @@ Welcome to the **ratatui_ruby** wiki! This is the central hub for community reso
 *   [Code of Conduct](./code_of_conduct.md): This project is intended to be a safe, productive collaboration, and contributors are expected to adhere to this Code of Conduct.
 *   [Troubleshooting & FAQ](./troubleshooting.md): Solutions to common problems and build issues.
 *   [Governance](./governance.md): How decisions are made and how the project is managed.
+*   [Issue Tracking](./issue_tracking.md): How we use labels to organize work.
 
 ## Development & Planning
 *   [Contributing Guide](./contributing.md)
