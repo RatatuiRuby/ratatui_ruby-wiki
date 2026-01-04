@@ -26,7 +26,7 @@ Welcome to the **ratatui_ruby** wiki! This is the central hub for community reso
 
 ## External Links
 *   [Source Code Repository](https://git.sr.ht/~kerrick/ratatui_ruby)
-*   [Documentation Index](https://git.sr.ht/~kerrick/ratatui_ruby/tree/main/item/docs/index.md)
+*   **Documentation Index:** [stable](https://git.sr.ht/~kerrick/ratatui_ruby/tree/stable/item/doc/index.md) (matches installed gem), [trunk](https://git.sr.ht/~kerrick/ratatui_ruby/tree/trunk/item/doc/index.md) (latest development)
 *   [Bug Tracker (Issues, To-Do)](https://todo.sr.ht/~kerrick/ratatui_ruby)
 *   Mailing Lists:
     * [Discussion](https://lists.sr.ht/~kerrick/ratatui_ruby-discuss)
