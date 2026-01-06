@@ -9,7 +9,6 @@ This project is intended to be a safe, productive collaboration, and contributor
 For your convenience, it is reproduced below. If this document ever falls out of date and/or conflicts with the linked [Ruby Community Conduct Guideline](https://www.ruby-lang.org/en/conduct/) document, the linked document takes precedence.
 
 
-<!-- SPDX-SnippetBegin -->
 <!--
   SPDX-FileCopyrightText: 2016 Yukihiro Matsumoto <matz@netlab.jp>
   SPDX-License-Identifier: BSD-2-Clause
@@ -27,4 +26,3 @@ For your convenience, it is reproduced below. If this document ever falls out of
 > - When interpreting the words and actions of others, participants should always assume good intentions.
 > - Behaviour which can be reasonably considered harassment will not be tolerated.
 
-<!-- SPDX-SnippetEnd -->

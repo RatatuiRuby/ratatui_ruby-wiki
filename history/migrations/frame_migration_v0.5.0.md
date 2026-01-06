@@ -29,7 +29,8 @@ We are moving from an implicit tree render to an explicit frame render.
 
 <!-- SPDX-SnippetBegin -->
 <!--
-  SPDX-License-Identifier: AGPL-3.0-or-later
+  SPDX-FileCopyrightText: 2025 Kerrick Long
+  SPDX-License-Identifier: MIT-0
 -->
 ```ruby
 RatatuiRuby.draw(  
@@ -42,7 +43,8 @@ RatatuiRuby.draw(
 
 <!-- SPDX-SnippetBegin -->
 <!--
-  SPDX-License-Identifier: AGPL-3.0-or-later
+  SPDX-FileCopyrightText: 2025 Kerrick Long
+  SPDX-License-Identifier: MIT-0
 -->
 ```ruby
 RatatuiRuby.draw do |frame|  
