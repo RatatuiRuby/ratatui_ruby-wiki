@@ -10,3 +10,4 @@ This section documents the evolution of the **ratatui_ruby** project.
 ## Archives
 
 - **[Architecture Migrations](./migrations/index.md)**: Documentation of major architectural shifts and refactorings.
+- **[Ecosystem Drafts](./ecosystem-drafts/index.md)**: LLM-generated brainstorming documents from before the [Constitution](../index.md) was formalized (2025–2026).
