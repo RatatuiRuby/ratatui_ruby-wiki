@@ -13,7 +13,7 @@ RatatuiRuby is a RubyGem built on Ratatui, a leading TUI library written in Rust
 
 ### The Ecosystem
 
-**RatatuiRuby:** [Core engine](https://git.sr.ht/~kerrick/ratatui_ruby) • **Tea:** [MVU architecture](https://git.sr.ht/~kerrick/ratatui_ruby-tea) • **Kit:** [Component architecture](https://git.sr.ht/~kerrick/ratatui_ruby-kit) • **DSL:** [Glimmer syntax](#chapter-4-the-syntax) • **Framework:** [Omakase framework](https://git.sr.ht/~kerrick/ratatui_ruby-framework) • **UI:** [Polished widgets](https://git.sr.ht/~kerrick/ratatui_ruby-ui) • **UI Pro:** [More polished widgets](#chapter-6-licensing)
+**RatatuiRuby:** [Core engine](https://git.sr.ht/~kerrick/ratatui_ruby) • **Tea:** [MVU architecture](https://git.sr.ht/~kerrick/ratatui_ruby-tea) • **Kit:** [Component architecture](https://git.sr.ht/~kerrick/ratatui_ruby-kit) (Planned) • **DSL:** [Glimmer syntax](#chapter-4-the-syntax) (Planned) • **Framework:** [Omakase framework](https://git.sr.ht/~kerrick/ratatui_ruby-framework) (Planned) • **UI:** [Polished widgets](https://git.sr.ht/~kerrick/ratatui_ruby-ui) (Planned) • **UI Pro:** [More polished widgets](#chapter-6-licensing) (Planned)
 
 ### For App Developers
 
@@ -27,9 +27,9 @@ RatatuiRuby is a RubyGem built on Ratatui, a leading TUI library written in Rust
 
 # The Roadmap (Draft)
 
-**Version:** v0.8.0
+**Version:** v0.8.1
 
-This document defines the architecture, philosophy, and roadmap of the RatatuiRuby ecosystem. It covers planned layers in depth. Only the Engine exists today. For a quick start, see the [Quickstart guide](https://git.sr.ht/~kerrick/ratatui_ruby/tree/stable/item/doc/getting_started/quickstart.md).
+This document defines the architecture, philosophy, and roadmap of the RatatuiRuby ecosystem. It covers planned layers in depth. The Engine and the Functional Runtime (Tea) exist today. For a quick start with The Engine, see the [Quickstart guide](https://git.sr.ht/~kerrick/ratatui_ruby/tree/stable/item/doc/getting_started/quickstart.md).
 
 
 ## The Big Tent
@@ -194,13 +194,40 @@ This prepares your code for Ruby 4.0 [Ractors](https://docs.ruby-lang.org/en/4.0
 
 The runtime ships with commands using only the standard library:
 
-- `Cmd.exec(shell)` — Run shell commands (via [`Open3`](https://docs.ruby-lang.org/en/4.0/Open3.html))
-- `Cmd.wait(seconds)` — One-shot timer; sleeps, returns a message, then stops
-- `Cmd.tick(interval)` — Recurring timer; sleeps, returns a message, and the runtime re-dispatches it automatically
-- `Cmd.net_http(url)` — Basic HTTP requests (via [`Net::HTTP`](https://docs.ruby-lang.org/en/4.0/Net/HTTP.html))
+- `Cmd.exec(shell, tag)` — Run shell commands (via [`Open3`](https://docs.ruby-lang.org/en/4.0/Open3.html)); produces `[tag, {stdout:, stderr:, status:}]`
+- `Cmd.wait(seconds, tag)` — One-shot timer; sleeps, then produces `[tag, elapsed_time]`
+- `Cmd.tick(interval, tag)` — Recurring timer; the runtime re-dispatches automatically when update returns `Cmd.tick` again
+- `Cmd.net_http(method, url, tag)` — Basic HTTP requests (via [`Net::HTTP`](https://docs.ruby-lang.org/en/4.0/Net/HTTP.html)); produces `[tag, {status:, body:, headers:}]`
 - `Cmd.batch([...])` — Run multiple commands in parallel; equivalent to returning an Array of commands
 - `Cmd.sequence([...])` — Run commands in serial order; each waits for the previous to complete
 - `Cmd.quit` — Terminate the application
+
+Commands produce **messages**, not callbacks. The `tag` argument names the message so your update function can pattern-match on it:
+
+<!-- SPDX-SnippetBegin -->
+<!--
+  SPDX-FileCopyrightText: 2026 Kerrick Long
+  SPDX-License-Identifier: MIT-0
+-->
+```ruby
+# Draft API. Subject to change.
+def update(msg, model)
+  case msg
+  in [:got_files, {stdout:, status: 0}]
+    [model.with(files: stdout.lines), nil]
+  in [:got_files, {stderr:, status:}]
+    [model.with(error: "Exit #{status}: #{stderr}"), nil]
+  else
+    [model, nil]
+  end
+end
+
+# In your update, return the command:
+[model.with(loading: true), Cmd.exec("ls -la", :got_files)]
+```
+<!-- SPDX-SnippetEnd -->
+
+This design keeps all logic in `update` and ensures messages are Ractor-shareable (no Proc captures).
 
 `Cmd.exec`, `Cmd.wait`, `Cmd.tick`, and `Cmd.net_http` run in the worker pool. `Cmd.quit` and `Cmd.batch` are handled by the runtime directly—they never spawn threads. `Cmd.quit` is a [sentinel value](https://en.wikipedia.org/wiki/Sentinel_value): the runtime detects it before dispatching and breaks the loop immediately.
 
@@ -841,14 +868,14 @@ RatatuiRuby follows an overlapping-serial development model. Each layer validate
 
 | Phase | Deliverable | Status |
 |-------|-------------|--------|
-| 1 | Engine (`ratatui_ruby`) | v0.8.0 Alpha |
-| 2 | Functional Runtime (`ratatui_ruby-tea`) | Planned |
+| 1 | Engine (`ratatui_ruby`) | v0.9.0 Alpha |
+| 2 | Functional Runtime (`ratatui_ruby-tea`) | v0.2.0 Pre-Release |
 | 3 | Component Kit (`ratatui_ruby-kit`) | Planned |
 | 4 | Syntax DSL (`glimmer-dsl-ratatui`) | Planned |
 | 5 | Framework (`ratatui_ruby-framework`) | Planned |
 | 6 | Premium Components | Future |
 
-Development proceeds inside-out: core first, then runtime, then syntax. Work on Tea will begin once the Engine reaches beta stability, ensuring the foundation is complete and ready before any layer reaches v1.0.0.
+Development proceeds inside-out: core first, then runtime, then syntax. Work on Tea has begun to help validate the Engine. Work on the Component Kit will begin once Tea reaches stability, ensuring the foundation is complete and ready before any layer reaches v1.0.0.
 
 ---
 
