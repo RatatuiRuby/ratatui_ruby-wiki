@@ -27,7 +27,7 @@ RatatuiRuby is a RubyGem built on Ratatui, a leading TUI library written in Rust
 
 # The Roadmap (Draft)
 
-**Version:** v0.8.1
+**Version:** v0.8.2
 
 This document defines the architecture, philosophy, and roadmap of the RatatuiRuby ecosystem. It covers planned layers in depth. The Engine and the Functional Runtime (Tea) exist today. For a quick start with The Engine, see the [Quickstart guide](https://git.sr.ht/~kerrick/ratatui_ruby/tree/stable/item/doc/getting_started/quickstart.md).
 
@@ -69,12 +69,12 @@ The Engine is the foundation. Above it, choose Tea or Kit. The DSL and Framework
 
 These gems and repositories provide build tooling, examples, and project infrastructure.
 
-| Gem | Role |
-|-----|------|
-| 🛠️ `ratatui_ruby-devtools` | Rake tasks, linters, build tooling |
-| 📖 `ratatui_ruby-examples` | Full application examples |
-| 🌐 `ratatui_ruby-website` | Project website (web UI) |
-| 🐚 `ratatui_ruby-sshsite` | Project website (SSH TUI) |
+| Audience | Gem | Role |
+|----------|-----|------|
+| Contributors | 🛠️ `ratatui_ruby-devtools` | Rake tasks, linters, build tooling |
+| App Developers | 📖 `ratatui_ruby-examples` | Full application examples |
+| App Developers | 🌐 `ratatui_ruby-website` | Project website (web UI) |
+| App Developers | 🐚 `ratatui_ruby-sshsite` | Project website (SSH TUI) |
 
 ---
 
@@ -152,7 +152,7 @@ All drawing happens on the main thread. The Engine is safe to use from multiple 
 The runtime separates logic from side effects:
 
 - **Model:** A single frozen object containing all application state.
-- **Update:** A pure function: `(Msg, Model) -> [Model, Cmd]`
+- **Update:** A pure function: `(Message, Model) -> [Model, Command]`
 - **View:** A pure function: `(Model) -> Widget Tree`
 - **Command:** Work to do later (HTTP requests, shell commands, timers). Runs off the main thread.
 
@@ -173,7 +173,7 @@ RatatuiRuby::TEA.run(
   model: { count: 0 },
   update: ->(msg, model) { ... },
   view: ->(model) { ... },
-  init: Cmd.net_http('https://api.example.com/data')  # Optional: run on startup
+  init: Command.http('https://api.example.com/data')  # Optional: run on startup
 )
 ```
 <!-- SPDX-SnippetEnd -->
@@ -186,7 +186,7 @@ The `init:` parameter runs a command at startup. Fetch initial data, start timer
 
 ### Ractor Safety
 
-The runtime enforces immutability now. In development mode, it calls `Ractor.make_shareable` on models and messages. Pass a mutable object, and it raises an error. Production skips this check.
+The runtime enforces immutability now. In debug mode (and therefore in automated tests), it validates that models and messages are Ractor-shareable via `Ractor.shareable?`. Pass a mutable object, and it raises an error. Production skips this check for performance.
 
 This prepares your code for Ruby 4.0 [Ractors](https://docs.ruby-lang.org/en/4.0/Ractor.html). When threads become true parallelism, your application upgrades without changes. Write thread-safe code today; upgrade transparently tomorrow.
 
@@ -194,13 +194,13 @@ This prepares your code for Ruby 4.0 [Ractors](https://docs.ruby-lang.org/en/4.0
 
 The runtime ships with commands using only the standard library:
 
-- `Cmd.exec(shell, tag)` — Run shell commands (via [`Open3`](https://docs.ruby-lang.org/en/4.0/Open3.html)); produces `[tag, {stdout:, stderr:, status:}]`
-- `Cmd.wait(seconds, tag)` — One-shot timer; sleeps, then produces `[tag, elapsed_time]`
-- `Cmd.tick(interval, tag)` — Recurring timer; the runtime re-dispatches automatically when update returns `Cmd.tick` again
-- `Cmd.net_http(method, url, tag)` — Basic HTTP requests (via [`Net::HTTP`](https://docs.ruby-lang.org/en/4.0/Net/HTTP.html)); produces `[tag, {status:, body:, headers:}]`
-- `Cmd.batch([...])` — Run multiple commands in parallel; equivalent to returning an Array of commands
-- `Cmd.sequence([...])` — Run commands in serial order; each waits for the previous to complete
-- `Cmd.quit` — Terminate the application
+- `Command.system(shell, tag)` — Run shell commands (via [`Open3`](https://docs.ruby-lang.org/en/4.0/Open3.html)); produces `[tag, {stdout:, stderr:, status:}]`
+- `Command.wait(seconds, tag)` — One-shot timer; sleeps, then produces `[tag, elapsed_time]`
+- `Command.tick(interval, tag)` — Recurring timer; the runtime re-dispatches automatically when update returns `Command.tick` again
+- `Command.http(method, url, tag)` — Basic HTTP requests (via [`Net::HTTP`](https://docs.ruby-lang.org/en/4.0/Net/HTTP.html)); produces `[tag, {status:, body:, headers:}]`
+- `Command.batch([...])` — Run multiple commands in parallel; equivalent to returning an Array of commands
+- `Command.sequence([...])` — Run commands in serial order; each waits for the previous to complete
+- `Command.exit` — Terminate the application
 
 Commands produce **messages**, not callbacks. The `tag` argument names the message so your update function can pattern-match on it:
 
@@ -223,19 +223,24 @@ def update(msg, model)
 end
 
 # In your update, return the command:
-[model.with(loading: true), Cmd.exec("ls -la", :got_files)]
+[model.with(loading: true), Command.system("ls -la", :got_files)]
 ```
 <!-- SPDX-SnippetEnd -->
 
 This design keeps all logic in `update` and ensures messages are Ractor-shareable (no Proc captures).
 
-`Cmd.exec`, `Cmd.wait`, `Cmd.tick`, and `Cmd.net_http` run in the worker pool. `Cmd.quit` and `Cmd.batch` are handled by the runtime directly—they never spawn threads. `Cmd.quit` is a [sentinel value](https://en.wikipedia.org/wiki/Sentinel_value): the runtime detects it before dispatching and breaks the loop immediately.
+`Command.system`, `Command.wait`, `Command.tick`, and `Command.http` run in the worker pool. `Command.exit` and `Command.batch` are handled by the runtime directly—they never spawn threads. `Command.exit` is a [sentinel value](https://en.wikipedia.org/wiki/Sentinel_value): the runtime detects it before dispatching and breaks the loop immediately.
 
 These cover common needs. Specialized clients (WebSockets, gRPC) can be wrapped using the same pattern.
 
+> [!NOTE]
+> **Coming Soon:** `ratatui_ruby-commands-websocket` will wrap [`faye-websocket`](https://github.com/faye/faye-websocket-ruby) as a reference implementation showing how to build custom commands with proper cancellation handling.
+
 ### Fractal Architecture
 
-Large applications decompose. Break your model into sub-models in a [Fractal Architecture](https://guide.elm-lang.org/webapps/structure.html). Delegate update calls to child reducers. Use `Cmd#map` to route responses:
+Large applications decompose into *bags*. A **bag** is a module containing `Model`, `INITIAL`, `UPDATE`, and `VIEW` constants. Bags compose: parent bags delegate to child bags.
+
+Break your model into sub-models in a [Fractal Architecture](https://guide.elm-lang.org/webapps/structure.html). Delegate update calls to child bag reducers. Use `Command.map` to route responses:
 
 <!-- SPDX-SnippetBegin -->
 <!--
@@ -244,7 +249,7 @@ Large applications decompose. Break your model into sub-models in a [Fractal Arc
 -->
 ```ruby
 # Draft API. Subject to change.
-child_cmd.map { |child_msg| ParentMsg.new(child_msg) }
+child_command.map { |child_message| ParentMessage.new(child_message) }
 ```
 <!-- SPDX-SnippetEnd -->
 
@@ -699,7 +704,7 @@ Glimmer provides two binding operators. Their behavior differs between Tea and K
 
 #### In Tea: Sugar for Dispatch
 
-Tea views are pure functions of immutable state. The `<=>` operator cannot mutate the model. Instead, Glimmer translates it into message dispatch: user input emits a `Msg::FieldUpdated` message with the field name and new value. Your update function handles it like any other message, preserving unidirectional flow.
+Tea views are pure functions of immutable state. The `<=>` operator cannot mutate the model. Instead, Glimmer translates it into message dispatch: user input emits a `Message::FieldUpdated` message with the field name and new value. Your update function handles it like any other message, preserving unidirectional flow.
 
 The syntax looks like bidirectional binding. The semantics remain functional. This is "Sugar for Dispatch."
 
@@ -715,13 +720,13 @@ The syntax looks like bidirectional binding. The semantics remain functional. Th
 input(value: <=> [model, :name])
 
 # When the user types, Glimmer emits:
-# Msg::FieldUpdated.new(:name, new_value)
+# Message::FieldUpdated.new(:name, new_value)
 
 # Your update function handles it:
-def update(msg, model)
-  case msg
-  when Msg::FieldUpdated
-    [model.with(msg.field => msg.value), nil]
+def update(message, model)
+  case message
+  when Message::FieldUpdated
+    [model.with(message.field => message.value), nil]
   end
 end
 ```
