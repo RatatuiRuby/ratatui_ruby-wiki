@@ -13,7 +13,7 @@ RatatuiRuby is a RubyGem built on Ratatui, a leading TUI library written in Rust
 
 ### The Ecosystem
 
-**RatatuiRuby:** [Core engine](https://git.sr.ht/~kerrick/ratatui_ruby) • **Tea:** [MVU architecture](https://git.sr.ht/~kerrick/ratatui_ruby-tea) • **Kit:** [Component architecture](https://git.sr.ht/~kerrick/ratatui_ruby-kit) (Planned) • **DSL:** [Glimmer syntax](https://sr.ht/~kerrick/ratatui_ruby/#chapter-4-the-syntax) (Planned) • **Framework:** [Omakase framework](https://git.sr.ht/~kerrick/ratatui_ruby-framework) (Planned) • **UI:** [Polished widgets](https://git.sr.ht/~kerrick/ratatui_ruby-ui) (Planned) • **UI Pro:** [More polished widgets](https://sr.ht/~kerrick/ratatui_ruby#chapter-6-licensing) (Planned)
+**RatatuiRuby:** [Core engine](https://www.ratatui-ruby.dev/) • **Rooibos:** [MVU architecture](https://www.rooibos.run) • **Kit:** [Component architecture](https://git.sr.ht/~kerrick/ratatui_ruby-kit) (Planned) • **DSL:** [Glimmer syntax](https://sr.ht/~kerrick/ratatui_ruby/#chapter-4-the-syntax) (Planned) • **Framework:** [Omakase framework](https://git.sr.ht/~kerrick/ratatui_ruby-framework) (Planned) • **UI:** [Polished widgets](https://git.sr.ht/~kerrick/ratatui_ruby-ui) (Planned) • **UI Pro:** [More polished widgets](https://sr.ht/~kerrick/ratatui_ruby#chapter-6-licensing) (Planned)
 
 ### For App Developers
 
@@ -29,7 +29,7 @@ RatatuiRuby is a RubyGem built on Ratatui, a leading TUI library written in Rust
 
 **Version:** v0.8.2
 
-This document defines the architecture, philosophy, and roadmap of the RatatuiRuby ecosystem. It covers planned layers in depth. The Engine and the Functional Runtime (Tea) exist today. For a quick start with The Engine, see the [Quickstart guide](https://git.sr.ht/~kerrick/ratatui_ruby/tree/stable/item/doc/getting_started/quickstart.md).
+This document defines the architecture, philosophy, and roadmap of the RatatuiRuby ecosystem. It covers planned layers in depth. The Engine ([RatatuiRuby](https://www.ratatui-ruby.dev)) and the Functional Runtime ([Rooibos](https://www.rooibos.run)) exist today. For a quick start with The Engine, see the [Quickstart guide](https://git.sr.ht/~kerrick/ratatui_ruby/tree/stable/item/doc/getting_started/quickstart.md).
 
 
 ## The Big Tent
@@ -40,12 +40,12 @@ RatatuiRuby supports both.
 
 The ecosystem shares a single high-performance engine. Above it, developers choose their path:
 
-- **The Functional Path (Tea):** Immutable state, unidirectional data flow, pure functions.
+- **The Functional Path (Rooibos):** Immutable state, unidirectional data flow, pure functions.
 - **The Object Path (Kit):** Retained-mode components, encapsulated state, hit testing, focus management.
 
-These paths are mutually exclusive at the runtime level. A Tea app cannot mount Kit components. A Kit app cannot run a Tea loop. Choose your architecture when you start your project.
+These paths are mutually exclusive at the runtime level. A Rooibos app cannot mount Kit components. A Kit app cannot run a Rooibos loop. Choose your architecture when you start your project.
 
-Rendering logic, however, crosses the boundary. Both paths share [Engine-level custom widgets](https://git.sr.ht/~kerrick/ratatui_ruby/tree/stable/item/examples/widget_render/README.md): any object that implements `render(area)` works in Tea views, Kit components, and raw Engine code. Kit components can also call Tea view functions via the Adapter pattern, [described below](#reusing-tea-views-in-kit).
+Rendering logic, however, crosses the boundary. Both paths share [Engine-level custom widgets](https://git.sr.ht/~kerrick/ratatui_ruby/tree/stable/item/examples/widget_render/README.md): any object that implements `render(area)` works in Rooibos views, Kit components, and raw Engine code. Kit components can also call Rooibos view functions via the Adapter pattern, [described below](#reusing-tea-views-in-kit).
 
 You pick the paradigm. RatatuiRuby provides the tools.
 
@@ -55,15 +55,15 @@ You pick the paradigm. RatatuiRuby provides the tools.
 
 | Layer | Gem | Role |
 |-------|-----|------|
-| Engine | 💎 [`ratatui_ruby`](https://git.sr.ht/~kerrick/ratatui_ruby) | Stateless rendering, layout, events |
-| Functional Runtime | ☕ [`ratatui_ruby-tea`](https://git.sr.ht/~kerrick/ratatui_ruby-tea) | [The Elm Architecture](https://guide.elm-lang.org/architecture/) for Ruby |
+| Engine | 💎 [`ratatui_ruby`](https://www.ratatui-ruby.dev) | Stateless rendering, layout, events |
+| Functional Runtime | ☕ [`rooibos`](https://www.rooibos.run) | [The Elm Architecture](https://guide.elm-lang.org/architecture/) for Ruby |
 | Component Kit | 🧰 [`ratatui_ruby-kit`](https://git.sr.ht/~kerrick/ratatui_ruby-kit) | [Retained-mode](https://en.wikipedia.org/wiki/Retained_mode) components (think React or Qt) |
 | Syntax DSL | ✨ [`glimmer-dsl-ratatui`](#chapter-4-the-syntax) | Declarative UI descriptions ([Glimmer](https://github.com/AndyObtiva/glimmer)) |
 | Framework | 🍣 [`ratatui_ruby-framework`](https://git.sr.ht/~kerrick/ratatui_ruby-framework) | Conventions, scaffolding, integrations |
 | UI | 🧱 [`ratatui_ruby-ui`](https://git.sr.ht/~kerrick/ratatui_ruby-ui) | Polished widgets (free) |
 | UI Pro | 🏰 [`ratatui_ruby-ui-pro`](#chapter-6-licensing) | More polished widgets (paid) |
 
-The Engine is the foundation. Above it, choose Tea or Kit. The DSL and Framework layers build on your chosen path.
+The Engine is the foundation. Above it, choose Rooibos or Kit. The DSL and Framework layers build on your chosen path.
 
 ### Non-Runtime Gems and Repositories
 
@@ -143,9 +143,9 @@ All drawing happens on the main thread. The Engine is safe to use from multiple 
 
 ---
 
-## Chapter 2: The Functional Path — Tea
+## Chapter 2: The Functional Path — Rooibos
 
-`ratatui_ruby-tea` implements the [Model-View-Update](https://guide.elm-lang.org/architecture/) (MVU) pattern, also known as The Elm Architecture. React with Redux follows the same structure. The pattern targets applications where predictable state matters: dashboards, installers, wizards.
+[Rooibos](https://www.rooibos.run) implements the [Model-View-Update](https://guide.elm-lang.org/architecture/) (MVU) pattern, also known as The Elm Architecture. React with Redux follows the same structure. The pattern targets applications where predictable state matters: dashboards, installers, wizards.
 
 ### Philosophy: View as a Function of State
 
@@ -158,9 +158,9 @@ The runtime separates logic from side effects:
 
 The main thread handles input, update, and rendering. Worker threads handle commands. This separation keeps the UI responsive.
 
-### Callable Objects
+### Fragments
 
-The runtime requires no base classes or inheritance. It accepts anything responding to `#call`:
+Pass a module containing `Init`, `Update`, and `View` callables:
 
 <!-- SPDX-SnippetBegin -->
 <!--
@@ -168,21 +168,39 @@ The runtime requires no base classes or inheritance. It accepts anything respond
   SPDX-License-Identifier: MIT-0
 -->
 ```ruby
-# Draft API. Subject to change.
-RatatuiRuby::TEA.run(
-  model: { count: 0 },
-  update: ->(msg, model) { ... },
-  view: ->(model) { ... },
-  init: Command.http('https://api.example.com/data')  # Optional: run on startup
-)
+module MyApp
+  Init = -> {
+    model = Data.define(:count, :data).new(count: 0, data: nil)
+    command = Command.http(:get, 'https://api.example.com/data', :got_data)
+    [model, command]
+  }
+
+  Update = ->(message, model) {
+    case message
+    in { type: :http_response, envelope: :got_data, body: }
+      [model.with(data: body), nil]
+    else
+      [model, nil]
+    end
+  }
+
+  View = ->(model, tui) {
+    tui.paragraph(text: model.data || "Loading...")
+  }
+end
+
+Rooibos.run(MyApp)
 ```
 <!-- SPDX-SnippetEnd -->
 
-Procs, lambdas, and service objects all work.
+Procs, lambdas, and service objects all work. The runtime requires no base classes or inheritance. Anything that responds to `#call` works.
+
+> [!TIP]
+> For testing, pass `model:`, `view:`, and `update:` explicitly to inject known state.
 
 ### App Startup
 
-The `init:` parameter runs a command at startup. Fetch initial data, start timers, or trigger other side effects. Without it, the runtime starts idle.
+The `Init` callable returns a command to run at startup. Fetch initial data, start timers, or trigger other side effects. Return just a model (no command) to start idle.
 
 ### Ractor Safety
 
@@ -194,15 +212,19 @@ This prepares your code for Ruby 4.0 [Ractors](https://docs.ruby-lang.org/en/4.0
 
 The runtime ships with commands using only the standard library:
 
-- `Command.system(shell, tag)` — Run shell commands (via [`Open3`](https://docs.ruby-lang.org/en/4.0/Open3.html)); produces `[tag, {stdout:, stderr:, status:}]`
-- `Command.wait(seconds, tag)` — One-shot timer; sleeps, then produces `[tag, elapsed_time]`
-- `Command.tick(interval, tag)` — Recurring timer; the runtime re-dispatches automatically when update returns `Command.tick` again
-- `Command.http(method, url, tag)` — Basic HTTP requests (via [`Net::HTTP`](https://docs.ruby-lang.org/en/4.0/Net/HTTP.html)); produces `[tag, {status:, body:, headers:}]`
-- `Command.batch([...])` — Run multiple commands in parallel; equivalent to returning an Array of commands
-- `Command.sequence([...])` — Run commands in serial order; each waits for the previous to complete
+- `Command.system(shell, envelope)` — Run shell commands (via [`Open3`](https://docs.ruby-lang.org/en/4.0/Open3.html)); produces `Message::System::Batch` with stdout, stderr, status
+- `Command.system(shell, envelope, stream: true)` — Streaming mode; produces incremental `Message::System::Stream` messages as output arrives
+- `Command.wait(seconds, envelope)` — One-shot timer; sleeps, then produces `Message::Timer` with elapsed time
+- `Command.tick(interval, envelope)` — Alias for `wait`, used for recurring timers; the update function re-dispatches to continue the loop
+- `Command.http(method, url, envelope)` — Basic HTTP requests (via [`Net::HTTP`](https://docs.ruby-lang.org/en/4.0/Net/HTTP.html)); produces `Message::HttpResponse` with status, body, headers
+- `Command.batch(...)` — Run multiple commands in parallel; equivalent to returning an Array of commands
+- `Command.all(envelope, ...)` — Like batch, but waits for all commands and returns aggregated results in a single `Message::All`
+- `Command.cancel(handle)` — Cancel a running command; produces `Message::Canceled`
+- `Command.open(path, envelope)` — Open files or URLs with the system default application; produces `Message::Open` on success
+- `Command.custom(callable, grace_period:)` — Wrap custom callables with distinct identity for cancellation
 - `Command.exit` — Terminate the application
 
-Commands produce **messages**, not callbacks. The `tag` argument names the message so your update function can pattern-match on it:
+Commands produce **message objects**, not arrays. The `envelope` argument tags the message so your update function can pattern-match on it:
 
 <!-- SPDX-SnippetBegin -->
 <!--
@@ -210,13 +232,14 @@ Commands produce **messages**, not callbacks. The `tag` argument names the messa
   SPDX-License-Identifier: MIT-0
 -->
 ```ruby
-# Draft API. Subject to change.
 def update(msg, model)
   case msg
-  in [:got_files, {stdout:, status: 0}]
+  in { type: :system_batch, envelope: :got_files, stdout:, status: 0 }
     [model.with(files: stdout.lines), nil]
-  in [:got_files, {stderr:, status:}]
+  in { type: :system_batch, envelope: :got_files, stderr:, status: }
     [model.with(error: "Exit #{status}: #{stderr}"), nil]
+  in { type: :error, envelope:, message: }
+    [model.with(error: "#{envelope} failed: #{message}"), nil]
   else
     [model, nil]
   end
@@ -229,18 +252,18 @@ end
 
 This design keeps all logic in `update` and ensures messages are Ractor-shareable (no Proc captures).
 
-`Command.system`, `Command.wait`, `Command.tick`, and `Command.http` run in the worker pool. `Command.exit` and `Command.batch` are handled by the runtime directly—they never spawn threads. `Command.exit` is a [sentinel value](https://en.wikipedia.org/wiki/Sentinel_value): the runtime detects it before dispatching and breaks the loop immediately.
+`Command.system`, `Command.wait`, `Command.tick`, and `Command.http` run in the worker pool. `Command.exit`, `Command.batch`, and `Command.cancel` are handled by the runtime directly (they never spawn threads). `Command.exit` is a [sentinel value](https://en.wikipedia.org/wiki/Sentinel_value): the runtime detects it before dispatching and breaks the loop immediately.
 
-These cover common needs. Specialized clients (WebSockets, gRPC) can be wrapped using the same pattern.
+These cover common needs. Specialized clients (WebSockets, gRPC) can be wrapped using `Command.custom` with proper cancellation handling.
 
 > [!NOTE]
-> **Coming Soon:** `ratatui_ruby-commands-websocket` will wrap [`faye-websocket`](https://github.com/faye/faye-websocket-ruby) as a reference implementation showing how to build custom commands with proper cancellation handling.
+> **Coming Soon:** `rooibos-commands-websocket` will wrap [`faye-websocket`](https://github.com/faye/faye-websocket-ruby) as a reference implementation showing how to build custom commands with proper cancellation handling.
 
 ### Fractal Architecture
 
-Large applications decompose into *bags*. A **bag** is a module containing `Model`, `INITIAL`, `UPDATE`, and `VIEW` constants. Bags compose: parent bags delegate to child bags.
+Large applications decompose into *fragments*. A **fragment** is a module containing `Model`, `Init`, `Update`, and `View` callables. Fragments compose: parent fragments delegate to child fragments.
 
-Break your model into sub-models in a [Fractal Architecture](https://guide.elm-lang.org/webapps/structure.html). Delegate update calls to child bag reducers. Use `Command.map` to route responses:
+Break your fragment into sub-fragments using a [Fractal Architecture](https://guide.elm-lang.org/webapps/structure.html). Include `Rooibos::Router` and declare routes to child fragments:
 
 <!-- SPDX-SnippetBegin -->
 <!--
@@ -248,18 +271,33 @@ Break your model into sub-models in a [Fractal Architecture](https://guide.elm-l
   SPDX-License-Identifier: MIT-0
 -->
 ```ruby
-# Draft API. Subject to change.
-child_command.map { |child_message| ParentMessage.new(child_message) }
+module Dashboard
+  include Rooibos::Router
+
+  route :stats, to: StatsPanel
+  route :network, to: NetworkPanel
+
+  keymap do
+    key :ctrl_c, -> { Command.exit }
+    key :s, -> { SystemInfo.fetch_command }, route: :stats
+    key :n, -> { NetworkInfo.fetch_command }, route: :network
+  end
+
+  Model = Data.define(:stats, :network)
+  Init = -> { Model.new(stats: StatsPanel::Init.(), network: NetworkPanel::Init.()) }
+  View = ->(model, tui) { ... }
+  Update = from_router
+end
 ```
 <!-- SPDX-SnippetEnd -->
 
-This prevents monolithic case statements.
+The Router handles message routing and keyboard shortcuts declaratively. Call `from_router` to generate an Update that routes prefixed messages to child fragments and handles keymaps automatically.
 
 ### Subscriptions: A Deliberate Deviation
 
-In Elm and Bubble Tea, subscriptions are long-lived listeners (timers, sockets, resize events) managed by a dedicated runtime system. The runtime diffs subscriptions each frame and spawns or kills listeners as needed. RatatuiRuby takes a different approach.
+In Elm and Bubble Tea, subscriptions are long-lived listeners (timers, sockets, resize events) managed by a dedicated runtime system. The runtime diffs subscriptions each frame and spawns or kills listeners as needed. Rooibos takes a different approach.
 
-RatatuiRuby subscriptions are recursive commands. A timer is a command that sleeps, returns a message, and gets re-dispatched by the update function when it handles that message. To cancel a timer, the update function simply stops returning the command. This design requires no separate subscription API and no lifecycle management.
+Rooibos subscriptions are recursive commands. A timer is a command that sleeps, returns a message, and gets re-dispatched by the update function when it handles that message. To cancel a timer, the update function simply stops returning the command. For long-lived commands that need explicit cancellation (WebSocket listeners, database pollers), store the command handle in your model and return `Command.cancel(handle)` when ready to stop.
 
 This choice serves three purposes. First, it follows Ruby idioms: commands are Procs, batches are Arrays, and subscriptions are loops. Second, it adds zero API surface because the recursive pattern reuses existing primitives. Third, it simplifies the runtime by eliminating subscription diffing logic and letting the update function control continuation directly.
 
@@ -674,9 +712,9 @@ The container interprets these signals to coordinate cross-component effects.
 
 `glimmer-dsl-ratatui` is a declarative DSL. Like HTML, SwiftUI, Jetpack Compose, or XAML, it describes UI structure visually rather than imperatively constructing widgets.
 
-### Unidirectional (Tea)
+### Unidirectional (Rooibos)
 
-In Tea, the DSL generates view trees:
+In Rooibos, the DSL generates view trees:
 
 <!-- SPDX-SnippetBegin -->
 <!--
@@ -696,15 +734,15 @@ Data binding is read-only. The model is immutable.
 
 ### Data Binding Operators
 
-Glimmer provides two binding operators. Their behavior differs between Tea and Kit because the underlying state management differs.
+Glimmer provides two binding operators. Their behavior differs between Rooibos and Kit because the underlying state management differs.
 
-**The `<=` operator (read binding):** Binds a widget property to a data source. In both Tea and Kit, this displays the current value.
+**The `<=` operator (read binding):** Binds a widget property to a data source. In both Rooibos and Kit, this displays the current value.
 
-**The `<=>` operator (bidirectional binding):** Binds a widget property for both reading and writing. This is where Tea and Kit diverge.
+**The `<=>` operator (bidirectional binding):** Binds a widget property for both reading and writing. This is where Rooibos and Kit diverge.
 
-#### In Tea: Sugar for Dispatch
+#### In Rooibos: Sugar for Dispatch
 
-Tea views are pure functions of immutable state. The `<=>` operator cannot mutate the model. Instead, Glimmer translates it into message dispatch: user input emits a `Message::FieldUpdated` message with the field name and new value. Your update function handles it like any other message, preserving unidirectional flow.
+Rooibos views are pure functions of immutable state. The `<=>` operator cannot mutate the model. Instead, Glimmer translates it into message dispatch: user input emits a `Message::FieldUpdated` message with the field name and new value. Your update function handles it like any other message, preserving unidirectional flow.
 
 The syntax looks like bidirectional binding. The semantics remain functional. This is "Sugar for Dispatch."
 
@@ -799,11 +837,11 @@ The Framework adds the Model layer that Kit lacks. This completes the MVC patter
 
 Kit alone is a component architecture. Kit plus Framework is MVC.
 
-### Reusing Tea Views in Kit
+### Reusing Rooibos Views in Kit
 
-The Framework is built on Kit. However, you may want to reuse rendering logic written for Tea within a Kit component. The Adapter pattern makes this possible without mixing runtimes.
+The Framework is built on Kit. However, you may want to reuse rendering logic written for Rooibos within a Kit component. The Adapter pattern makes this possible without mixing runtimes.
 
-A Tea view function is a pure function: it takes an immutable model and returns a widget tree. You can call this function from a Kit component by adapting your mutable ActiveRecord model into a frozen snapshot. The Kit component handles events and mutations as usual; the Tea view function handles only the rendering.
+A Rooibos view function is a pure function: it takes an immutable model and returns a widget tree. You can call this function from a Kit component by adapting your mutable ActiveRecord model into a frozen snapshot. The Kit component handles events and mutations as usual; the Rooibos view function handles only the rendering.
 
 <!-- SPDX-SnippetBegin -->
 <!--
@@ -818,11 +856,11 @@ class DashboardWidget < Kit::Component
   end
 
   def render(tui, frame, area)
-    # Adapt mutable state to frozen Tea model
-    tea_model = RecordAdapter.to_tea_model(@record)
+    # Adapt mutable state to frozen Rooibos model
+    rooibos_model = RecordAdapter.to_rooibos_model(@record)
 
-    # Call Tea view as a pure function
-    widget_tree = MyTeaView.call(tea_model)
+    # Call Rooibos view as a pure function
+    widget_tree = MyRooibosView.call(rooibos_model)
 
     # Render the returned tree
     frame.render_widget(widget_tree, area)
@@ -836,7 +874,7 @@ end
 ```
 <!-- SPDX-SnippetEnd -->
 
-The Adapter creates an immutable snapshot from mutable state, forming a clear boundary between the two paradigms. This approach shares rendering logic without embedding a Tea runtime inside a Kit application.
+The Adapter creates an immutable snapshot from mutable state, forming a clear boundary between the two paradigms. This approach shares rendering logic without embedding a Rooibos runtime inside a Kit application.
 
 ---
 
@@ -845,7 +883,7 @@ The Adapter creates an immutable snapshot from mutable state, forming a clear bo
 | Layer | License |
 |-------|---------|
 | Engine | [LGPL-3.0-or-later](https://spdx.org/licenses/LGPL-3.0-or-later.html) |
-| Tea | [LGPL-3.0-or-later](https://spdx.org/licenses/LGPL-3.0-or-later.html) |
+| Rooibos | [LGPL-3.0-or-later](https://spdx.org/licenses/LGPL-3.0-or-later.html) |
 | Kit | [LGPL-3.0-or-later](https://spdx.org/licenses/LGPL-3.0-or-later.html) |
 | DSL | [LGPL-3.0-or-later](https://spdx.org/licenses/LGPL-3.0-or-later.html) |
 | Framework | [LGPL-3.0-or-later](https://spdx.org/licenses/LGPL-3.0-or-later.html) |
@@ -873,14 +911,14 @@ RatatuiRuby follows an overlapping-serial development model. Each layer validate
 
 | Phase | Deliverable | Status |
 |-------|-------------|--------|
-| 1 | Engine (`ratatui_ruby`) | v0.9.0 Alpha |
-| 2 | Functional Runtime (`ratatui_ruby-tea`) | v0.2.0 Pre-Release |
+| 1 | Engine (`ratatui_ruby`) | v1.2.0 |
+| 2 | Functional Runtime (`rooibos`) | v0.6.1 Beta |
 | 3 | Component Kit (`ratatui_ruby-kit`) | Planned |
 | 4 | Syntax DSL (`glimmer-dsl-ratatui`) | Planned |
 | 5 | Framework (`ratatui_ruby-framework`) | Planned |
 | 6 | Premium Components | Future |
 
-Development proceeds inside-out: core first, then runtime, then syntax. Work on Tea has begun to help validate the Engine. Work on the Component Kit will begin once Tea reaches stability, ensuring the foundation is complete and ready before any layer reaches v1.0.0.
+Development proceeds inside-out: core first, then runtime, then syntax. Work on Rooibos has begun to help validate the Engine. Work on the Component Kit will begin once Rooibos reaches stability, ensuring the foundation is complete and ready before any layer reaches v1.0.0.
 
 ---
 
